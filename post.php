@@ -62,7 +62,7 @@
 			<?php $this->title() ?>
 		</div>
 		<div class="post-data">
-			<time datetime="<?php $this->date('c'); ?>" itemprop="datePublished">Published on <?php $this->date('M j, Y'); ?></time> in <?php $this->category(''); ?> with <a href="#comments"><?php $this->commentsNum(_t(' 0 comment'), _t(' 1 comment'), _t(' %d comments')); ?></a>
+			<time datetime="<?php $this->date('c'); ?>" itemprop="datePublished">Published on <?php $this->date(); ?></time> in <?php $this->category(''); ?> with <a href="#comments"><?php $this->commentsNum(_t(' 0 comment'), _t(' 1 comment'), _t(' %d comments')); ?></a>
 		</div>
 	</div>
 	<div id="post-content" class="post-content" itemprop="articleBody">
