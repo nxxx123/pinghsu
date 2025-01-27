@@ -216,20 +216,6 @@ function getRecentPosts($obj,$pageSize){
     }
 }
 
-function getHotTags($obj, $limit){
-    $db = Typecho_Db::get();
-    $tags = $db->fetchAll($db->select()
-        ->from('table.metas')
-        ->where('type = ?', 'tag')
-        ->order('count', Typecho_Db::SORT_DESC)
-        ->limit($limit));
-    foreach($tags as $tag){
-        $tag = $obj->filter($tag);
-        $output = '<li><a href="'.$tag['permalink'].'"># '.$tag['name'].'</a></li>';
-        echo $output;
-    }
-}
-
 function randBgIco(){
     $bgIco=array('book','game','note','chat','code','image','web','link','design','lock');
     return $bgIco[mt_rand(0,9)];
