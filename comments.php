@@ -1,6 +1,7 @@
 <?php if (!defined('__TYPECHO_ROOT_DIR__')) exit; ?>
 
-<?php
+<?php 
+// 自定义评论函数，递归生成
 function threadedComments($comments, $options)
 {
     // 初始化评论类名为空字符串
@@ -73,23 +74,27 @@ function threadedComments($comments, $options)
         <?php $this->comments()->to($comments); ?>
         <?php if ($this->allow('comment')): ?>
             <div id="respond">
-                <span class="response"><?php _e('Responses'); ?>
-                <?php if ($this->user->hasLogin()): ?> / You are <a href="<?php $this->options->profileUrl(); ?>" data-no-instant><?php $this->user->screenName(); ?></a> here, do you want to <a href="<?php $this->options->logoutUrl(); ?>" title="Logout" data-no-instant>logout</a> ?
-                    <?php endif; ?> <?php $comments->cancelReply(' / Cancel Reply'); ?></span>
+                <span class="response"><?php echo __('Responses'); ?>
+                    <?php if ($this->user->hasLogin()):
+                        echo ' | ' . __('User Account') . ':'; ?>
+                        <a href="<?php $this->options->profileUrl(); ?>" data-no-instant><?php $this->user->screenName(); ?></a> | <a href="<?php $this->options->logoutUrl(); ?>" title="<?php echo __('Click to Logout'); ?>" data-no-instant><?php echo __('Click to Logout'); ?></a>
+                    <?php endif; ?>
+                    <a href="javascript:void(0);" rel="nofollow" style="float:right;display:none;" id="cancelReply" onclick="return TypechoComment.cancelReply();"><?php echo __('Cancel Reply'); ?></a>
+                </span>
                 <form method="post" action="<?php echo $this->permalink; ?>comment" id="comment-form" class="comment-form" role="form" onsubmit="getElementById('misubmit').disabled=true;return true;">
                     <?php if (!$this->user->hasLogin()): ?>
                         <input type="text" name="author" maxlength="12" id="author" class="form-control input-control clearfix" placeholder="Name (*)" value="" required>
                         <input type="email" name="mail" id="mail" class="form-control input-control clearfix" placeholder="Email (*)" value="" <?php if ($this->options->commentsRequireMail): ?> required<?php endif; ?>>
                         <input type="url" name="url" id="url" class="form-control input-control clearfix" placeholder="Site (https://)" value="" <?php if ($this->options->commentsRequireURL): ?> required<?php endif; ?>>
                     <?php endif; ?>
-                    <textarea name="text" id="textarea" class="form-control" placeholder="Your comment here. Be cool. " required><?php $this->remember('text', false); ?></textarea>
-                    <button type="submit" class="submit" id="misubmit">SUBMIT</button>
+                    <textarea name="text" id="textarea" class="form-control" placeholder="<?php echo __('Typing isn\'t tiring, keep smiling'); ?>" required><?php $this->remember('text', false); ?></textarea>
+                    <button type="submit" class="submit" id="misubmit"><?php echo __('submit'); ?></button>
                     <?php $security = $this->widget('Widget_Security'); ?>
                     <input type="hidden" name="_" value="<?php echo $security->getToken($this->request->getReferer()) ?>">
                 </form>
             </div>
         <?php else : ?>
-            <span class="response">The article has been posted for too long and comments have been automatically closed.</span>
+            <span class="response"><?php echo __('Comments on this article are closed'); ?></span>
         <?php endif; ?>
 
         <?php if ($comments->have()): ?>
@@ -102,9 +107,14 @@ function threadedComments($comments, $options)
         <?php endif; ?>
     </div>
 </div>
-
-
 <script>
+    var getCookie = function(name) {
+        const value = `; ${document.cookie}`;
+        const parts = value.split(`; ${name}=`);
+        if (parts.length === 2) return parts.pop().split(';').shift();
+        return undefined;
+    };
+
     var TypechoComment = {
         reply: function(cid, coid) {
             // 新位置插入
@@ -113,84 +123,44 @@ function threadedComments($comments, $options)
             // 把post地址更新一下
             let post_action = "<?php echo $this->permalink; ?>comment?parent=" + coid;
             $("#comment-form").attr("action", post_action)
+            $("#cancelReply").show();
             return false
-        }
+        },
+        cancelReply: function() {
+            // 取消回复的隐藏和显示
+            $("#cancelReply").hide();
+            $("#comments").prepend($('#respond'));
+            $('body').scrollTo('#comments', 300, 0);
+            return false
+        },
+        isEmail: function(email) {
+            const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+            return emailRegex.test(email);
+        },
+        isUrl: function(url) {
+            const urlRegex = /^(https?:\/\/)?([a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}(\/[^ ]*)?$/;
+            return urlRegex.test(url);
+        },
+        // 对于评论过的朋友通过前端（比对cookie）自动补充昵称等信息的初始化
+        load: function() {
+            // 对于登录的用户不需要填写
+            const IS_LOGIN = <?php echo $this->user->hasLogin() ? 'true' : 'false'; ?>;
+            if (IS_LOGIN) return;
+            // cookie的前缀
+            const COOKIE_PREFIX = '<?php echo md5($this->request->getUrlPrefix()); ?>__typecho_remember';
+            // 从 Cookie 中读取用户信息
+            let author = getCookie(`${COOKIE_PREFIX}_author`),
+                mail = getCookie(`${COOKIE_PREFIX}_mail`),
+                url = getCookie(`${COOKIE_PREFIX}_url`);
+
+            // 如果存在信息，则填充到表单中
+            if (author !== undefined) $('#author').val(decodeURIComponent(author));
+
+            if (mail !== undefined && this.isEmail(decodeURIComponent(mail))) $('#mail').val(decodeURIComponent(mail));
+            if (url !== undefined && this.isUrl(decodeURIComponent(url))) $('#url').val(decodeURIComponent(url));
+        },
     };
-    // (function() {
-    //     window.TypechoComment = {
-    //         dom: function(id) {
-    //             return document.getElementById(id);
-    //         },
-    //         create: function(tag, attr) {
-    //             var el = document.createElement(tag);
-    //             for (var key in attr) {
-    //                 el.setAttribute(key, attr[key]);
-    //             }
-    //             return el;
-    //         },
-    //         reply: function(cid, coid) {
-    //             var comment = this.dom(cid),
-    //                 parent = comment.parentNode,
-    //                 response = this.dom('<?php echo $this->respondId(); ?>'),
-    //                 input = this.dom('comment-parent'),
-    //                 form = 'form' == response.tagName ? response : response.getElementsByTagName('form')[0],
-    //                 textarea = response.getElementsByTagName('textarea')[0];
-    //             if (null == input) {
-    //                 input = this.create('input', {
-    //                     'type': 'hidden',
-    //                     'name': 'parent',
-    //                     'id': 'comment-parent'
-    //                 });
-
-    //                 form.appendChild(input);
-    //             }
-    //             input.setAttribute('value', coid);
-    //             if (null == this.dom('comment-form-place-holder')) {
-    //                 var holder = this.create('div', {
-    //                     'id': 'comment-form-place-holder'
-    //                 });
-
-    //                 response.parentNode.insertBefore(holder, response);
-    //             }
-    //             comment.appendChild(response);
-    //             this.dom('cancel-comment-reply-link').style.display = '';
-    //             if (null != textarea && 'text' == textarea.name) {
-    //                 textarea.focus();
-    //             }
-    //             return false;
-    //         },
-    //         cancelReply: function() {
-    //             var response = this.dom('<?php echo $this->respondId(); ?>'),
-    //                 holder = this.dom('comment-form-place-holder'),
-    //                 input = this.dom('comment-parent');
-    //             if (null != input) {
-    //                 input.parentNode.removeChild(input);
-    //             }
-    //             if (null == holder) {
-    //                 return true;
-    //             }
-    //             this.dom('cancel-comment-reply-link').style.display = 'none';
-    //             holder.parentNode.insertBefore(response, holder);
-    //             return false;
-    //         }
-    //     };
-    // })();
-    <?php if (!$this->user->hasLogin()): ?>
-
-        // function getCommentCookie(name) {
-        //     var arr, reg = new RegExp("(^| )" + name + "=([^;]*)(;|$)");
-        //     if (arr = document.cookie.match(reg)) {
-        //         return unescape(decodeURI(arr[2]));
-        //     } else {
-        //         return null;
-        //     }
-        // }
-
-        // function addCommentInputValue() {
-        //     document.getElementById('author').value = getCommentCookie('<?php echo md5($this->request->getUrlPrefix()); ?>__typecho_remember_author');
-        //     document.getElementById('mail').value = getCommentCookie('<?php echo md5($this->request->getUrlPrefix()); ?>__typecho_remember_mail');
-        //     document.getElementById('url').value = getCommentCookie('<?php echo md5($this->request->getUrlPrefix()); ?>__typecho_remember_url');
-        // }
-        // addCommentInputValue();
-    <?php endif; ?>
+    (function() {
+        TypechoComment.load();
+    })();
 </script>

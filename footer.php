@@ -83,11 +83,7 @@
     <?php if (($this->options->tableOfContents == 'able') && ($this->is('post'))): ?>
         var postDirectory = new Headroom(document.getElementById("directory-content"), {
             tolerance: 0,
-            <?php if ($this->options->postshowthumb == 'able'): ?>
-                offset: 280,
-            <?php else: ?>
-                offset: 90,
-            <?php endif; ?>
+            offset: <?php echo $this->options->postshowthumb == 'able' ? '280' : '90'; ?>,
             classes: {
                 initial: "initial",
                 pinned: "pinned",

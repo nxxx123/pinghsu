@@ -386,3 +386,104 @@ function compressHtml($html_source)
     }
     return $compress;
 }
+
+/*************** 语言选项 *****************/
+
+/**
+ * 翻译函数，根据键名和参数返回对应的翻译文本。
+ *
+ * @param string $key 翻译键名
+ * @param array $params 替换占位符的关联数组，例如 ['name' => 'John']
+ * @return string 翻译后的文本
+ */
+function __($key, $params = [])
+{
+    static $translations = null;
+    static $language = null;
+
+    // 初始化语言和翻译
+    if ($translations === null) {
+        // 获取浏览器语言
+        $language = getBrowserLanguage();
+        // 加载对应语言的翻译文件
+        $translations = loadTranslations($language);
+    }
+
+    // 如果找不到翻译，返回键名
+    if (!isset($translations[$key])) return $key;
+    // 获取翻译
+    $translation = $translations[$key];
+    // 替换占位符
+    foreach ($params as $placeholder => $value) {
+        $translation = str_replace("{{{$placeholder}}}", $value, $translation);
+    }
+    return $translation;
+}
+
+/**
+ * 获取用户浏览器的首选语言。
+ *
+ * @param array $supportedLanguages 支持的语言列表（例如 ['en', 'zh', 'es']）
+ * @param string $defaultLanguage 默认语言（例如 'en'）
+ * @return string 返回匹配的语言代码
+ */
+function getBrowserLanguage($supportedLanguages = ['en', 'zh'], $defaultLanguage = 'zh')
+{
+    // 如果浏览器没有发送语言头，返回默认语言
+    if (!isset($_SERVER['HTTP_ACCEPT_LANGUAGE'])) {
+        return $defaultLanguage;
+    }
+
+    // 获取浏览器语言偏好
+    $browserLanguages = explode(',', $_SERVER['HTTP_ACCEPT_LANGUAGE']);
+    $parsedLanguages = [];
+
+    // 解析语言偏好
+    foreach ($browserLanguages as $lang) {
+        $parts = explode(';', $lang);
+        $languageCode = strtolower(trim($parts[0]));
+        $quality = 1.0; // 默认优先级
+
+        // 解析优先级（例如 'en;q=0.9'）
+        if (isset($parts[1]) && strpos($parts[1], 'q=') === 0) {
+            $quality = (float) substr($parts[1], 2);
+        }
+
+        // 只保留语言代码的前两位（例如 'en-US' -> 'en'）
+        if (strpos($languageCode, '-') !== false) {
+            $languageCode = substr($languageCode, 0, 2);
+        }
+
+        // 如果语言在支持列表中，添加到解析结果
+        if (in_array($languageCode, $supportedLanguages)) {
+            $parsedLanguages[$languageCode] = $quality;
+        }
+    }
+
+    // 如果没有匹配的语言，返回默认语言
+    if (empty($parsedLanguages)) {
+        return $defaultLanguage;
+    }
+
+    // 按优先级排序
+    arsort($parsedLanguages);
+
+    // 返回优先级最高的语言
+    return array_key_first($parsedLanguages);
+}
+
+/**
+ * 加载指定语言的翻译文件。
+ *
+ * @param string $language 语言代码（例如 'en' 或 'zh'）
+ * @return array 返回翻译数组
+ * @throws Exception 如果语言文件不存在
+ */
+function loadTranslations($language)
+{
+    $file = __DIR__ . "/languages/{$language}.php";
+    if (file_exists($file)) {
+        return include $file;
+    }
+    throw new Exception("Language file for '{$language}' not found.");
+}
