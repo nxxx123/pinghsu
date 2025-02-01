@@ -24,7 +24,7 @@ $this->need('header.php');
             <a href="<?php $tags->permalink(); ?>" class="<?php if ($this->options->colorBgPosts == 'defaultColor'): ?> bg-white<?php elseif ($this->options->colorBgPosts == 'customColor'): ?>text-white bg-<?php echo randBgColor(); ?><?php endif;?>"># <?php $tags->name(); ?>(<?php $tags->count(); ?>)</a>
             <?php endwhile; ?>
         <?php else: ?>
-            <p> Nothing here ! </p>
+            <p> <?php echo __('Nothing here');?>! </p>
         <?php endif; ?>
         <div class="search-tags-hr <?php if ($this->options->colorBgPosts == 'defaultColor'): ?> bg-deepgrey<?php elseif ($this->options->colorBgPosts == 'customColor'): ?> bg-<?php echo randBgColor(); ?><?php endif; ?>"></div>
         </div>

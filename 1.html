@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+#emoji_button {
+    /* 使用视口单位（vw）或 viewport height（vh）来动态调整尺寸 */
+    width: 20vmin;
+    height: 20vmin;
+    background-color: #ffd700;
+    border-radius: 50%;
+    position: relative;
+    cursor: pointer;
+    transition: transform 0.2s;
+    margin: 20px auto; /* 居中显示 */
+}
+
+/* 媒体查询：在小屏幕上调整按钮大小 */
+@media (max-width: 480px) {
+    #emoji_button {
+        width: 15vmin;
+        height: 15vmin;
+    }
+}
+
+/* 使用calc()动态计算尺寸 */
+#emoji_button:hover {
+    transform: scale(calc(1 + 0.1 * (100vw / 1920)));
+}
+
+#emoji_button:active {
+    transform: scale(calc(1 - 0.1 * (100vw / 1920)));
+}
+
+.eye {
+    /* 动态调整眼睛大小 */
+    width: 25%;
+    height: 25%;
+    background-color: #333;
+    border-radius: 50%;
+    position: absolute;
+    border: 2px solid #333;
+}
+
+.eye:nth-child(1) {
+    top: 35%;
+    left: 25%;
+}
+
+.eye:nth-child(2) {
+    top: 35%;
+    right: 25%;
+}
+
+.mouth {
+    width: 50%;
+    height: 25%;
+    background-color: #333;
+    border-radius: 0 0 50px 50px;
+    position: absolute;
+    top: 65%;
+    left: 25%;
+}
+
+/* 口腔内部 - 可选 */
+#emoji_button::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 70%;
+    height: 30%;
+    background-color: #ff9966;
+    border-radius: 0 0 70px 70px;
+}
+</style>
+</head>
+<body>
+<div id="emoji_button">
+    <div class="eye"></div>
+    <div class="eye"></div>
+    <div class="mouth"></div>
+</div>
+</body>
+</html>

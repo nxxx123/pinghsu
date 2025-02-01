@@ -1669,8 +1669,8 @@ textarea:-ms-input-placeholder {
 }
 .comment-form textarea.form-control {
   overflow: hidden;
-  height: 150px;
-  padding: 10px 0;
+  height: 120px;
+  margin: 10px 0px 40px 0px;
   resize: none;
   border-radius: 0;
 }
@@ -2124,4 +2124,15 @@ textarea:-ms-input-placeholder {
 /* 我的修改 */
 .comment-children {
   padding: 0 5%;
+}
+.emoji_button {
+  width: 28px;
+  height: 28px;
+  position: absolute;
+  left: 20px;
+  bottom: 20px;
+  background-image: url("data:image/svg+xml, %3Csvg xmlns='http://www.w3.org/2000/svg' class='icon' viewBox='0 0 1024 1024'%3E%3Cpath fill='%23231815' d='M530 52zm-34 0h-8 8zm16-52a512 512 0 1 0 0 1024A512 512 0 0 0 512 0zm373 242zm73 152zm-12-37zm-6-17zm-16-34zm-9-17zm-19-32zm-47-59zm13 15zm-39-41zm-14-12zm-14-11zm-15-12zm-16-11zm-15-9zm-16-10a453 453 0 0 0-15-7 462 462 0 0 1 15 7zm-18-9zm-17-8zm-16-6a465 465 0 0 0-16-6 459 459 0 0 1 16 6zm-19-7zm-18-6zm-17-5a454 454 0 0 0-17-4l17 4zm-20-5zm-19-3a459 459 0 0 0-17-3 457 457 0 0 1 17 3zm-18-3zm-21-2zm-67-1-8 1 8-1zm-13 1-7 1 7-1zm-12 1zm-12 2-6 1 6-1zm-11 2zm-12 2zm-12 2zm-11 3zm-12 3zm-11 3zm-11 4zm-11 4zm-11 4zm-10 4zm-11 5zm-33 16zm-11 6zm-10 6zm-10 7zm-9 6zm-10 7zm-9 7zm-9 7zm-9 7zm-9 8zm-8 8zm-8 8zm324 788a461 461 0 0 1-332-780 440 440 0 0 0-8 8l786 193a462 462 0 0 1-446 579zM345 455c0 48-17 87-38 87s-38-39-38-87c0-47 17-86 38-86s38 39 38 86zm328 262a159 159 0 0 1-298 0h298zm88-262c0 48-17 87-38 87s-38-39-38-87c0-47 17-86 38-86s38 39 38 86z' /%3E%3C/svg%3E%0A");
+}
+.emoji_container{
+  z-index: 100;
 }

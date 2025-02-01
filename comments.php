@@ -1,6 +1,6 @@
 <?php if (!defined('__TYPECHO_ROOT_DIR__')) exit; ?>
 
-<?php 
+<?php
 // 自定义评论函数，递归生成
 function threadedComments($comments, $options)
 {
@@ -67,7 +67,9 @@ function threadedComments($comments, $options)
         <?php } ?>
     </li>
 <?php } ?>
-<script src="<?php $this->options->themeUrl('js/myQuery.js'); ?>"></script>
+<link href="<?php $this->options->themeUrl('css/noQueryEmoji.min.css'); ?>" rel="stylesheet">
+<script src="<?php $this->options->themeUrl('js/noQueryEmoji.min.js'); ?>"></script>
+<script src="<?php $this->options->themeUrl('js/emoji.list.js'); ?>"></script>
 
 <div id="<?php $this->respondId(); ?>" class="comment-container">
     <div id="comments" class="clearfix">
@@ -88,6 +90,7 @@ function threadedComments($comments, $options)
                         <input type="url" name="url" id="url" class="form-control input-control clearfix" placeholder="Site (https://)" value="" <?php if ($this->options->commentsRequireURL): ?> required<?php endif; ?>>
                     <?php endif; ?>
                     <textarea name="text" id="textarea" class="form-control" placeholder="<?php echo __('Typing isn\'t tiring, keep smiling'); ?>" required><?php $this->remember('text', false); ?></textarea>
+                    <div id="emoji_button" class="emoji_button"></div>
                     <button type="submit" class="submit" id="misubmit"><?php echo __('submit'); ?></button>
                     <?php $security = $this->widget('Widget_Security'); ?>
                     <input type="hidden" name="_" value="<?php echo $security->getToken($this->request->getReferer()) ?>">
@@ -155,12 +158,30 @@ function threadedComments($comments, $options)
 
             // 如果存在信息，则填充到表单中
             if (author !== undefined) $('#author').val(decodeURIComponent(author));
-
             if (mail !== undefined && this.isEmail(decodeURIComponent(mail))) $('#mail').val(decodeURIComponent(mail));
             if (url !== undefined && this.isUrl(decodeURIComponent(url))) $('#url').val(decodeURIComponent(url));
+        },
+        // 初始化表情
+        initEmoji: function() {
+            $("#textarea").emoji({
+                button: "#emoji_button",
+                showTab: true,
+                animation: 'fade',
+                basePath: '<?php $this->options->themeUrl('images/emoji'); ?>',
+                icons: emojiLists
+            });
+        },
+        // 解析评论的表情
+        parseEmoji: function() {
+            $(".comment-list li").emojiParse({
+                basePath: '<?php $this->options->themeUrl('images/emoji'); ?>',
+                icons: emojiLists // 注：详见 js/emoji.list.js
+            });
         },
     };
     (function() {
         TypechoComment.load();
+        TypechoComment.initEmoji();
+        TypechoComment.parseEmoji();
     })();
 </script>

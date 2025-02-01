@@ -7,4 +7,7 @@ return array(
     'submit' => '提交',
     'Typing isn\'t tiring, keep smiling' => '打字不累，微笑面对',
     'Cancel Reply' => '取消回复',
+    'Nothing here' => '这里空空如也',
+    'Published on' => '发表于',
+    'Continue Reading' => '继续阅读',
 );
